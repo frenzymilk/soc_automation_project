@@ -17,6 +17,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: "us-east-1"
+  TF_VAR_key_name: ${{ secrets.AWS_KEY_NAME }}
 
 permissions:
   contents: read # required for actions/checkout
@@ -77,8 +78,7 @@ jobs:
       - name: Terraform Apply
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
-        env:
-          TF_VAR_key_name: ${{ secrets.AWS_KEY_NAME }}
+          
 
 
 

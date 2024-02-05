@@ -27,7 +27,9 @@ output "public_ip" {
   sensitive   = true
 }
 
-variable "key_name" {}
+variable "key_name" {
+	sensitive = true
+}
 
   provider "aws" {
     region = "us-east-1"
