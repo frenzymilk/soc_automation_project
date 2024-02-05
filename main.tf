@@ -61,9 +61,9 @@ terraform {
   /* networking */
 
   resource "aws_vpc" "soc_vpc" {
-    cidr_bloc           = "10.5.0.0/24"
-    instance_tenancy    = "default"
-    enable_dns_hostname = true
+    cidr_block           = "10.5.0.0/24"
+    instance_tenancy     = "default"
+    enable_dns_hostnames = true
     tags = {
       Name = "soc_vpc"
     }
