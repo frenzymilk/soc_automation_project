@@ -36,7 +36,7 @@ output "public_ip" {
   resource "aws_instance" "wazuh_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
-    security_groups = ["AWS_wazuh_sg"]
+    security_groups = ["wazuh_sg"]
     tags = {
       Name = "WazuhServerInstance"
     }
@@ -50,7 +50,7 @@ output "public_ip" {
   resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
-    security_groups = ["AWS_thehive_sg"]
+    security_groups = ["thehive_sg"]
     tags = {
       Name = "TheHiveServerInstance"
     }
@@ -192,7 +192,7 @@ output "public_ip" {
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
-    
+
     tags = {
       Name = "AWS_wazuh_sg"
     }
