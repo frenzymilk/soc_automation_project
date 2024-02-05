@@ -75,9 +75,9 @@ output "public_ip" {
   /* networking */
 
   resource "aws_vpc" "soc_vpc" {
-    cidr_block           = "10.5.0.0/24"
-    instance_tenancy     = "default"
-    enable_dns_hostnames = true
+    cidr_block           = "10.5.0.0/16"
+    #instance_tenancy     = "default"
+    #enable_dns_hostnames = true
     tags = {
       Name = "soc_vpc"
     }
@@ -145,49 +145,49 @@ output "public_ip" {
     }
 
     ingress {
-      from_port   = 0
+      from_port   = 1514
       to_port     = 1514
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
 
     ingress {
-      from_port   = 0
+      from_port   = 1515
       to_port     = 1515
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
     
     ingress {
-      from_port   = 0
+      from_port   = 1516
       to_port     = 1516
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
     
     ingress {
-      from_port   = 0
+      from_port   = 55000
       to_port     = 55000
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
     
     ingress {
-      from_port   = 0
+      from_port   = 9200
       to_port     = 9200
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
 
     ingress {
-      from_port   = 0
-      to_port     = 9300 - 9400
+      from_port   = 9300
+      to_port     = 9400
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
 
     ingress {
-      from_port   = 0
+      from_port   = 443
       to_port     = 443
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
