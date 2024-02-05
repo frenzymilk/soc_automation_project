@@ -52,6 +52,7 @@ terraform {
 					  echo 'deb https://deb.thehive-project.org release main' | tee -a /etc/apt/sources.list.d/thehive-project.list
 					  apt-get update
 					  apt install thehive4
+					  EOL
 
 	}
 
