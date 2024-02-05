@@ -77,6 +77,8 @@ jobs:
       - name: Terraform Apply
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_key_name: ${{ secrets.AWS_KEY_NAME }}
 
 
 

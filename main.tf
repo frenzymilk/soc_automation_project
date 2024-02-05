@@ -20,12 +20,14 @@ data "http" "icanhazip" {
 locals {
   public_ip = "${chomp(data.http.icanhazip.body)}"
 }
+
 output "public_ip" {
   value = "${local.public_ip}"
   description = "My IP address"
   sensitive   = true
 }
 
+variable "key_name" {}
 
   provider "aws" {
     region = "us-east-1"
@@ -36,6 +38,7 @@ output "public_ip" {
   resource "aws_instance" "wazuh_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
+    key_name        = var.key_name
     vpc_security_group_ids  = [aws_security_group.wazuh_sg.id]
     subnet_id = aws_subnet.soc_subnet.id
     tags = {
@@ -51,6 +54,7 @@ output "public_ip" {
   resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
+    key_name        = var.key_name
     vpc_security_group_ids  = [aws_security_group.thehive_sg.id]
     subnet_id = aws_subnet.soc_subnet.id
     tags = {
