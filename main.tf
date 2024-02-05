@@ -119,12 +119,14 @@ output "public_ip" {
     name        = "AWS_thehive_sg"
     description = "AWS_thehive_sg"
     vpc_id      = aws_vpc.soc_vpc.id
+
     ingress {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+
     tags = {
       Name = "AWS_thehive_sg"
     }
@@ -134,50 +136,66 @@ output "public_ip" {
     name        = "AWS_wazuh_sg"
     description = "AWS_wazuh_sg"
     vpc_id      = aws_vpc.soc_vpc.id
+
     ingress {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+
     ingress {
+      from_port   = 0
       to_port     = 1514
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+
     ingress {
+      from_port   = 0
       to_port     = 1515
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+    
     ingress {
+      from_port   = 0
       to_port     = 1516
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+    
     ingress {
+      from_port   = 0
       to_port     = 55000
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+    
     ingress {
+      from_port   = 0
       to_port     = 9200
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+
     ingress {
+      from_port   = 0
       to_port     = 9300 - 9400
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+
     ingress {
+      from_port   = 0
       to_port     = 443
       protocol    = "tcp"
       cidr_blocks = ["${local.public_ip}/32"]
     }
+    
     tags = {
       Name = "AWS_wazuh_sg"
     }
-  }
+ }
 
 
