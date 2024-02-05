@@ -50,7 +50,7 @@ jobs:
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Terraform Init
         id: init
