@@ -119,7 +119,7 @@ output "public_ip" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     tags = {
       Name = "AWS_thehive_sg"
@@ -134,42 +134,42 @@ output "public_ip" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 1514
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 1515
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 1516
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 55000
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 9200
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 9300 - 9400
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     ingress {
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["${public_ip}/32"]
+      cidr_blocks = ["${output.public_ip}/32"]
     }
     tags = {
       Name = "AWS_wazuh_sg"
