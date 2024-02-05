@@ -37,6 +37,7 @@ output "public_ip" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     vpc_security_group_ids  = [aws_security_group.wazuh_sg.id]
+    subnet_id = aws_subnet.soc_subnet.id
     tags = {
       Name = "WazuhServerInstance"
     }
@@ -51,6 +52,7 @@ output "public_ip" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     vpc_security_group_ids  = [aws_security_group.thehive_sg.id]
+    subnet_id = aws_subnet.soc_subnet.id
     tags = {
       Name = "TheHiveServerInstance"
     }
