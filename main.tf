@@ -36,7 +36,7 @@ output "public_ip" {
   resource "aws_instance" "wazuh_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
-    security_groups = [aws_security_group.wazuh_sg.id]
+    vpc_security_group_ids  = [aws_security_group.wazuh_sg.id]
     tags = {
       Name = "WazuhServerInstance"
     }
@@ -50,7 +50,7 @@ output "public_ip" {
   resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
-    security_groups = [aws_security_group.thehive_sg.id]
+    vpc_security_group_ids  = [aws_security_group.thehive_sg.id]
     tags = {
       Name = "TheHiveServerInstance"
     }
