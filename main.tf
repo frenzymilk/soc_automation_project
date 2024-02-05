@@ -13,6 +13,14 @@ terraform {
 
 }
 
+# Learn our public IP address
+data "http" "icanhazip" {
+   url = "http://ipv4.icanhazip.com"
+}
+output "public_ip" {
+  value = "${chomp(data.http.icanhazip.body)}"
+}
+
   provider "aws" {
     region = "us-east-1"
   }
@@ -109,7 +117,7 @@ terraform {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     tags = {
       Name = "AWS_thehive_sg"
@@ -124,42 +132,42 @@ terraform {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 1514
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 1515
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 1516
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 55000
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 9200
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 9300 - 9400
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     ingress {
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["0/32"]
+      cidr_blocks = ["$(public_ip)"]
     }
     tags = {
       Name = "AWS_wazuh_sg"
