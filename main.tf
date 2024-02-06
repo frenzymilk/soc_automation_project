@@ -35,13 +35,82 @@ variable "my_ip" {
 	sensitive = true
 }
 
-  provider "aws" {
+provider "aws" {
     region = "us-east-1"
-  }
+}
 
-  /* instances */
+/* instances */
 
-  resource "aws_instance" "wazuh_server" {
+resource "aws_instance" "target_server" {
+    ami             = "ami-0c7217cdde317cfec"
+    instance_type   = "t2.micro"
+    key_name        = var.key_name
+    vpc_security_group_ids  = [aws_security_group.target_sg.id]
+    subnet_id = aws_subnet.target_subnet.id
+    tags = {
+      Name = "TargetServerInstance"
+    }
+    user_data = <<-EOL
+					  #!/bin/bash -xe
+					  apt-get update
+					  apt-get install -y curl wget
+					  curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
+					  echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list
+					  apt-get update 
+					  WAZUH_MANAGER="${aws_instance.wazuh_server.private_ip}" apt-get install wazuh-agent
+					  systemctl daemon-reload
+					  systemctl enable wazuh-agent
+					  systemctl start wazuh-agent
+					  sed -i "s/^deb/#deb/" /etc/apt/sources.list.d/wazuh.list
+					  apt-get update
+
+					  wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+					  dpkg -i packages-microsoft-prod.deb
+					  apt-get update
+					  apt-get install -y  sysmonforlinux
+
+					  printf
+					  '<Sysmon schemaversion="4.70">\n
+					    <EventFiltering>\n
+					      <!-- Event ID 1 == ProcessCreate. Log all newly created processes -->\n
+					      <RuleGroup name="" groupRelation="or">\n
+					        <ProcessCreate onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!-- Event ID 3 == NetworkConnect Detected. Log all network connections -->\n
+					      <RuleGroup name="" groupRelation="or">\n
+					        <NetworkConnect onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!-- Event ID 5 == ProcessTerminate. Log all processes terminated -->\n
+					      <RuleGroup name="" groupRelation="or">\n
+					        <ProcessTerminate onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!-- Event ID 9 == RawAccessRead. Log all raw access read -->
+					      <RuleGroup name="" groupRelation="or">\n
+					        <RawAccessRead onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!-- Event ID 10 == ProcessAccess. Log all open process operations -->\n
+					      <RuleGroup name="" groupRelation="or">\n
+					        <ProcessAccess onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!-- Event ID 11 == FileCreate. Log every file creation -->
+					      <RuleGroup name="" groupRelation="or">\n
+					        <FileCreate onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					      <!--Event ID 23 == FileDelete. Log all files being deleted -->\n
+					      <RuleGroup name="" groupRelation="or">\n
+					        <FileDelete onmatch="exclude"/>\n
+					      </RuleGroup>\n
+					    </EventFiltering>\n
+					  </Sysmon>\n' >> /opt/sysmon_config.xml
+
+					  sysmon -accepteula -i /opt/sysmon_config.xml
+
+					  
+
+					  EOL
+}
+
+resource "aws_instance" "wazuh_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     key_name        = var.key_name
@@ -54,10 +123,11 @@ variable "my_ip" {
 					  #!/bin/bash -xe
 					  apt update
 					  curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && bash ./wazuh-install.sh -a
-					  EOL
-  }
 
-  resource "aws_instance" "thehive_server" {
+					  EOL
+}
+
+resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     key_name        = var.key_name
@@ -118,9 +188,48 @@ variable "my_ip" {
 
 					  EOL
 
-  }
+}
 
   /* networking */
+
+  resource "aws_vpc" "target_vpc" {
+    cidr_block           = "10.4.0.0/16"
+    #instance_tenancy     = "default"
+    #enable_dns_hostnames = true
+    tags = {
+      Name = "target_vpc"
+    }
+  }
+
+  resource "aws_subnet" "target_subnet" {
+    vpc_id                  = aws_vpc.soc_vpc.id
+    cidr_block              = "10.4.0.0/24"
+    availability_zone       = "us-east-1a"
+    map_public_ip_on_launch = true
+    tags = {
+      Name = "AWS_Soc subnet"
+    }
+  }
+
+  resource "aws_internet_gateway" "target_gw" {
+    vpc_id = aws_vpc.target_vpc.id
+    tags = {
+      Name = "target gateway"
+    }
+  }
+
+  resource "aws_route_table" "target_rt" {
+    vpc_id = aws_vpc.target_vpc.id
+    route {
+      cidr_block = "0.0.0.0/0"
+      gateway_id = aws_internet_gateway.target_gw.id
+    }
+  }
+
+  resource "aws_route_table_association" "target_public_rta" {
+    subnet_id      = aws_subnet.target_subnet.id
+    route_table_id = aws_route_table.target_rt.id
+  }
 
   resource "aws_vpc" "soc_vpc" {
     cidr_block           = "10.5.0.0/16"
@@ -161,7 +270,45 @@ variable "my_ip" {
     route_table_id = aws_route_table.soc_rt.id
   }
 
+  resource "aws_vpc_peering_connection" "soc_target" {
+    peer_vpc_id   = aws_vpc.target_vpc.id
+    vpc_id        = aws_vpc.soc_vpc.id
+    peer_region   = "us-east-1"
+    auto_accept   = true
+  }
+
+  resource "aws_vpc_peering_connection" "target_soc" {
+    peer_vpc_id   = aws_vpc.soc_vpc.id
+    vpc_id        = aws_vpc.target_vpc.id
+    peer_region   = "us-east-1"
+    auto_accept   = true
+  }
+
   /* security groups */
+
+  resource "aws_security_group" "target_sg" {
+    name        = "AWS_target_sg"
+    description = "AWS_target_sg"
+    vpc_id      = aws_vpc.target_vpc.id
+
+    ingress {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["${var.my_ip}/32"]
+    }
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+      Name = "AWS_thehive_sg"
+    }
+  }
 
   resource "aws_security_group" "thehive_sg" {
     name        = "AWS_thehive_sg"
@@ -217,49 +364,21 @@ variable "my_ip" {
       from_port   = 1514
       to_port     = 1514
       protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
+      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
     }
 
     ingress {
       from_port   = 1515
       to_port     = 1515
       protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
-    }
-    
-    ingress {
-      from_port   = 1516
-      to_port     = 1516
-      protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
-    }
-    
-    ingress {
-      from_port   = 55000
-      to_port     = 55000
-      protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
-    }
-    
-    ingress {
-      from_port   = 9200
-      to_port     = 9200
-      protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
-    }
-
-    ingress {
-      from_port   = 9300
-      to_port     = 9400
-      protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
+      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
     }
 
     ingress {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["${var.my_ip}/32"]
+      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
     }
 
     tags = {
