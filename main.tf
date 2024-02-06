@@ -69,29 +69,29 @@ variable "my_ip" {
     user_data = <<-EOL
 					  #!/bin/bash -xe
 					  apt update
-					  apt -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb_release
+					  apt install -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb_release
 
 					  wget -qO- https://apt.corretto.aws/corretto.key | gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
 					  echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  tee -a /etc/apt/sources.list.d/corretto.sources.list
 					  apt update
-					  apt -y install java-common java-11-amazon-corretto-jdk
+					  apt install -y  java-common java-11-amazon-corretto-jdk
 					  echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | tee -a /etc/environment 
 					  export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
 
 					  wget -qO -  https://downloads.apache.org/cassandra/KEYS | gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
 					  echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  tee -a /etc/apt/sources.list.d/cassandra.sources.list 
 					  apt update
-					  apt -y install cassandra
+					  apt install -y  cassandra
 					  sed -i "s/cluster_name: 'Test Cluster'/cluster_name: 'theHive'/g" /etc/cassandra/cassandra.yaml
 					  systemctl stop cassandra
 					  rm -rf /var/lib/cassandra/*
 					  systemctl start cassandra
 
 					  wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
-					  apt-get -y install apt-transport-https
+					  apt-get install  -y apt-transport-https
 					  echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  tee /etc/apt/sources.list.d/elastic-7.x.list 
 					  apt update
-					  apt install elasticsearch
+					  apt -y install elasticsearch
 
 					  sed -i "s/#cluster.name: my-application/cluster.name: hive /g" /etc/cassandra/cassandra.yaml
 
