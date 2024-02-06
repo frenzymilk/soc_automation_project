@@ -92,8 +92,29 @@ variable "my_ip" {
 					  echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  tee /etc/apt/sources.list.d/elastic-7.x.list 
 					  apt update
 					  apt -y install elasticsearch
+					  sed -i "s/#cluster.name: my-application/cluster.name: hive /g" /etc/elasticsearch/elasticsearch.yml
+					  echo  "http.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
+					  echo  "transport.host: 127.0.0.1" >> /etc/elasticsearch/elasticsearch.yml
+					  echo  "thread_pool.search.queue_size: 100000" >> /etc/elasticsearch/elasticsearch.yml
+					  echo  "script.allowed_types: \"inline,stored\"" >> /etc/elasticsearch/elasticsearch.yml
+					  echo  "xpack.security.enabled: false" >> etc/elasticsearch/elasticsearch.yml
+					  touch /etc/elasticsearch/jvm.options.d/jvm.options
+					  echo "-Dlog4j2.formatMsgNoLookups=true" >> /etc/elasticsearch/jvm.options.d/jvm.options
+					  echo "-Xms4g" >> /etc/elasticsearch/jvm.options.d/jvm.options
+					  echo "-Xmx4g" >> /etc/elasticsearch/jvm.options.d/jvm.options
+					  systemctl stop elasticsearch
+					  rm -rf /var/lib/elasticsearch/*
+					  systemctl start elasticsearch
+					  systemctl enable elasticsearch
 
-					  sed -i "s/#cluster.name: my-application/cluster.name: hive /g" /etc/cassandra/cassandra.yaml
+					  mkdir -p /opt/thp/thehive/files
+					  chown -R thehive:thehive /opt/thp/thehive/files
+					  wget -O- https://archives.strangebee.com/keys/strangebee.gpg | gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
+					  echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.2 main' | tee -a /etc/apt/sources.list.d/strangebee.list
+					  apt-get update
+					  apt-get install -y thehive
+					  systemctl start thehive
+					  systemctl enable thehive
 
 					  EOL
 
@@ -150,6 +171,13 @@ variable "my_ip" {
     ingress {
       from_port   = 22
       to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["${var.my_ip}/32"]
+    }
+
+    ingress {
+      from_port   = 9000
+      to_port     = 9000
       protocol    = "tcp"
       cidr_blocks = ["${var.my_ip}/32"]
     }
