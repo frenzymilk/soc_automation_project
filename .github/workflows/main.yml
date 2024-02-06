@@ -79,16 +79,16 @@ jobs:
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
           
-  destroy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
+  # deploy:
+  #   name: Destroy
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
 
-    steps:
+  #   steps:
 
-      - name: Terraform destroy
-        id: destroy
-        run: terraform destroy 
+  #     - name: Terraform destroy
+  #       id: destroy
+  #       run: terraform destroy 
         
