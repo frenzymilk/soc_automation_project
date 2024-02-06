@@ -69,7 +69,7 @@ variable "my_ip" {
     user_data = <<-EOL
 					  #!/bin/bash -xe
 					  apt update
-					  apt install -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb_release
+					  apt install -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-release
 
 					  wget -qO- https://apt.corretto.aws/corretto.key | gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
 					  echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  tee -a /etc/apt/sources.list.d/corretto.sources.list
