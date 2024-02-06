@@ -107,12 +107,12 @@ variable "my_ip" {
 					  systemctl start elasticsearch
 					  systemctl enable elasticsearch
 
-					  mkdir -p /opt/thp/thehive/files
-					  chown -R thehive:thehive /opt/thp/thehive/files
 					  wget -O- https://archives.strangebee.com/keys/strangebee.gpg | gpg --dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
 					  echo 'deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.2 main' | tee -a /etc/apt/sources.list.d/strangebee.list
 					  apt-get update
 					  apt-get install -y thehive
+					  mkdir -p /opt/thp/thehive/files
+					  chown -R thehive:thehive /opt/thp/thehive/files
 					  systemctl start thehive
 					  systemctl enable thehive
 
