@@ -135,6 +135,13 @@ variable "key_name" {
       cidr_blocks = ["${local.public_ip}/32"]
     }
 
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
     tags = {
       Name = "AWS_thehive_sg"
     }
@@ -144,6 +151,13 @@ variable "key_name" {
     name        = "AWS_wazuh_sg"
     description = "AWS_wazuh_sg"
     vpc_id      = aws_vpc.soc_vpc.id
+
+    egress {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+    }
 
     ingress {
       from_port   = 22
