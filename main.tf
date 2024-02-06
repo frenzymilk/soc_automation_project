@@ -14,20 +14,24 @@ terraform {
 }
 
 # Learn our public IP address
-data "http" "icanhazip" {
-   url = "http://ipv4.icanhazip.com"
-}
-locals {
-  public_ip = "${chomp(data.http.icanhazip.body)}"
-}
+# data "http" "icanhazip" {
+#    url = "http://ipv4.icanhazip.com"
+# }
+# locals {
+#   public_ip = "${chomp(data.http.icanhazip.body)}"
+# }
 
-output "public_ip" {
-  value = "${local.public_ip}"
-  description = "My IP address"
-  sensitive   = true
-}
+# output "public_ip" {
+#  value = "${local.public_ip}"
+#   description = "My IP address"
+#   sensitive   = true
+# }
 
 variable "key_name" {
+	sensitive = true
+}
+
+variable "my_ip" {
 	sensitive = true
 }
 
@@ -64,18 +68,33 @@ variable "key_name" {
     }
     user_data = <<-EOL
 					  #!/bin/bash -xe
-					  apt-get update
-					  apt-get install -y openjdk-8-jre-headless
-					  echo JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64" >> /etc/environment
-					  export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
-					  curl -fsSL https://www.apache.org/dist/cassandra/KEYS | apt-key add -
-					  echo "deb http://www.apache.org/dist/cassandra/debian 311x main" | tee -a /etc/apt/sources.list.d/cassandra.sources.list
 					  apt update
-					  apt install cassandra
-					  curl https://raw.githubusercontent.com/TheHive-Project/TheHive/master/PGP-PUBLIC-KEY | apt-key add -
-					  echo 'deb https://deb.thehive-project.org release main' | tee -a /etc/apt/sources.list.d/thehive-project.list
-					  apt-get update
-					  apt install thehive4
+					  apt -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb_release
+
+					  wget -qO- https://apt.corretto.aws/corretto.key | gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
+					  echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  tee -a /etc/apt/sources.list.d/corretto.sources.list
+					  apt update
+					  apt -y install java-common java-11-amazon-corretto-jdk
+					  echo JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto" | tee -a /etc/environment 
+					  export JAVA_HOME="/usr/lib/jvm/java-11-amazon-corretto"
+
+					  wget -qO -  https://downloads.apache.org/cassandra/KEYS | gpg --dearmor  -o /usr/share/keyrings/cassandra-archive.gpg
+					  echo "deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main" |  tee -a /etc/apt/sources.list.d/cassandra.sources.list 
+					  apt update
+					  apt -y install cassandra
+					  sed -i "s/cluster_name: 'Test Cluster'/cluster_name: 'theHive'/g" /etc/cassandra/cassandra.yaml
+					  systemctl stop cassandra
+					  rm -rf /var/lib/cassandra/*
+					  systemctl start cassandra
+
+					  wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |  gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+					  apt-get -y install apt-transport-https
+					  echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" |  tee /etc/apt/sources.list.d/elastic-7.x.list 
+					  apt update
+					  apt install elasticsearch
+
+					  sed -i "s/#cluster.name: my-application/cluster.name: hive /g" /etc/cassandra/cassandra.yaml
+
 					  EOL
 
   }
@@ -132,7 +151,7 @@ variable "key_name" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     egress {
@@ -163,56 +182,56 @@ variable "key_name" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     ingress {
       from_port   = 1514
       to_port     = 1514
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     ingress {
       from_port   = 1515
       to_port     = 1515
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
     
     ingress {
       from_port   = 1516
       to_port     = 1516
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
     
     ingress {
       from_port   = 55000
       to_port     = 55000
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
     
     ingress {
       from_port   = 9200
       to_port     = 9200
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     ingress {
       from_port   = 9300
       to_port     = 9400
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     ingress {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["${local.public_ip}/32"]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     tags = {
