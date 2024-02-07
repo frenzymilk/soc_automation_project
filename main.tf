@@ -267,12 +267,6 @@ resource "aws_instance" "thehive_server" {
     route_table_id = aws_route_table.soc_rt.id
   }
 
-  resource "aws_vpc_peering_connection" "soc_target" {
-    peer_vpc_id   = aws_vpc.target_vpc.id
-    vpc_id        = aws_vpc.soc_vpc.id
-    auto_accept   = true
-  }
-
   resource "aws_vpc_peering_connection" "target_soc" {
     peer_vpc_id   = aws_vpc.soc_vpc.id
     vpc_id        = aws_vpc.target_vpc.id
