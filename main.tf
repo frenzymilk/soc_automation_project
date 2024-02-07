@@ -41,6 +41,23 @@ provider "aws" {
 
 /* instances */
 
+resource "aws_instance" "wazuh_server" {
+    ami             = "ami-0c7217cdde317cfec"
+    instance_type   = "t2.xlarge"
+    key_name        = var.key_name
+    vpc_security_group_ids  = [aws_security_group.wazuh_sg.id]
+    subnet_id = aws_subnet.soc_subnet.id
+    tags = {
+      Name = "WazuhServerInstance"
+    }
+    user_data = <<-EOL
+					  #!/bin/bash -xe
+					  apt update
+					  curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && bash ./wazuh-install.sh -a
+
+					  EOL
+}
+
 resource "aws_instance" "target_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.micro"
@@ -70,7 +87,7 @@ resource "aws_instance" "target_server" {
 					  apt-get install -y  sysmonforlinux
 
 					  printf
-					  '<Sysmon schemaversion="4.70">\n
+					  "<Sysmon schemaversion="4.70">\n
 					    <EventFiltering>\n
 					      <!-- Event ID 1 == ProcessCreate. Log all newly created processes -->\n
 					      <RuleGroup name="" groupRelation="or">\n
@@ -101,29 +118,9 @@ resource "aws_instance" "target_server" {
 					        <FileDelete onmatch="exclude"/>\n
 					      </RuleGroup>\n
 					    </EventFiltering>\n
-					  </Sysmon>\n' >> /opt/sysmon_config.xml
+					  </Sysmon>\n" >> /opt/sysmon_config.xml
 
 					  sysmon -accepteula -i /opt/sysmon_config.xml
-
-					  
-
-					  EOL
-}
-
-resource "aws_instance" "wazuh_server" {
-    ami             = "ami-0c7217cdde317cfec"
-    instance_type   = "t2.xlarge"
-    key_name        = var.key_name
-    vpc_security_group_ids  = [aws_security_group.wazuh_sg.id]
-    subnet_id = aws_subnet.soc_subnet.id
-    tags = {
-      Name = "WazuhServerInstance"
-    }
-    user_data = <<-EOL
-					  #!/bin/bash -xe
-					  apt update
-					  curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && bash ./wazuh-install.sh -a
-
 					  EOL
 }
 
