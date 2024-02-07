@@ -100,7 +100,7 @@ resource "aws_instance" "target_server" {
 					      '<RuleGroup name="" groupRelation="or">' \
 					        '<ProcessTerminate onmatch="exclude"/>' \
 					      '</RuleGroup>' \
-					      '<!-- Event ID 9 == RawAccessRead. Log all raw access read -->
+					      '<!-- Event ID 9 == RawAccessRead. Log all raw access read -->' \
 					      '<RuleGroup name="" groupRelation="or">' \
 					        '<RawAccessRead onmatch="exclude"/>' \
 					      '</RuleGroup>' \
@@ -108,7 +108,7 @@ resource "aws_instance" "target_server" {
 					      '<RuleGroup name="" groupRelation="or">' \
 					        '<ProcessAccess onmatch="exclude"/>' \
 					      '</RuleGroup>' \
-					      '<!-- Event ID 11 == FileCreate. Log every file creation -->
+					      '<!-- Event ID 11 == FileCreate. Log every file creation -->' \
 					      '<RuleGroup name="" groupRelation="or">' \
 					        '<FileCreate onmatch="exclude"/>' \
 					      '</RuleGroup>' \
