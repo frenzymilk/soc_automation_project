@@ -86,39 +86,38 @@ resource "aws_instance" "target_server" {
 					  apt-get update
 					  apt-get install -y  sysmonforlinux
 
-					  printf
-					  "<Sysmon schemaversion="4.70">\n
-					    <EventFiltering>\n
-					      <!-- Event ID 1 == ProcessCreate. Log all newly created processes -->\n
-					      <RuleGroup name="" groupRelation="or">\n
-					        <ProcessCreate onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!-- Event ID 3 == NetworkConnect Detected. Log all network connections -->\n
-					      <RuleGroup name="" groupRelation="or">\n
-					        <NetworkConnect onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!-- Event ID 5 == ProcessTerminate. Log all processes terminated -->\n
-					      <RuleGroup name="" groupRelation="or">\n
-					        <ProcessTerminate onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!-- Event ID 9 == RawAccessRead. Log all raw access read -->
-					      <RuleGroup name="" groupRelation="or">\n
-					        <RawAccessRead onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!-- Event ID 10 == ProcessAccess. Log all open process operations -->\n
-					      <RuleGroup name="" groupRelation="or">\n
-					        <ProcessAccess onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!-- Event ID 11 == FileCreate. Log every file creation -->
-					      <RuleGroup name="" groupRelation="or">\n
-					        <FileCreate onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					      <!--Event ID 23 == FileDelete. Log all files being deleted -->\n
-					      <RuleGroup name="" groupRelation="or">\n
-					        <FileDelete onmatch="exclude"/>\n
-					      </RuleGroup>\n
-					    </EventFiltering>\n
-					  </Sysmon>\n" >> /opt/sysmon_config.xml
+					  printf '%s' \' '<Sysmon schemaversion="4.70">' \
+					    '<EventFiltering>' \
+					      '<!-- Event ID 1 == ProcessCreate. Log all newly created processes -->' \
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<ProcessCreate onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!-- Event ID 3 == NetworkConnect Detected. Log all network connections -->' \
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<NetworkConnect onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!-- Event ID 5 == ProcessTerminate. Log all processes terminated -->' \
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<ProcessTerminate onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!-- Event ID 9 == RawAccessRead. Log all raw access read -->
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<RawAccessRead onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!-- Event ID 10 == ProcessAccess. Log all open process operations -->' \
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<ProcessAccess onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!-- Event ID 11 == FileCreate. Log every file creation -->
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<FileCreate onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					      '<!--Event ID 23 == FileDelete. Log all files being deleted -->' \
+					      '<RuleGroup name="" groupRelation="or">' \
+					        '<FileDelete onmatch="exclude"/>' \
+					      '</RuleGroup>' \
+					    '</EventFiltering>' \
+					  '</Sysmon>' >> /opt/sysmon_config.xml
 
 					  sysmon -accepteula -i /opt/sysmon_config.xml
 					  EOL
@@ -263,6 +262,10 @@ resource "aws_instance" "thehive_server" {
     route {
       cidr_block = "0.0.0.0/0"
       gateway_id = aws_internet_gateway.soc_gw.id
+    }
+    route {
+      cidr_block = aws_vpc.target_vpc.cidr_block
+      vpc_peering_connection_id = aws_vpc_peering_connection.target_soc.id
     }
   }
 
