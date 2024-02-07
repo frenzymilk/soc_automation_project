@@ -303,7 +303,7 @@ resource "aws_instance" "thehive_server" {
     }
 
     tags = {
-      Name = "AWS_thehive_sg"
+      Name = "AWS_target_sg"
     }
   }
 
@@ -361,21 +361,24 @@ resource "aws_instance" "thehive_server" {
       from_port   = 1514
       to_port     = 1514
       protocol    = "tcp"
-      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      #cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      security_groups = [aws_security_group.target_sg.id]
     }
 
     ingress {
       from_port   = 1515
       to_port     = 1515
       protocol    = "tcp"
-      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      #cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      security_groups = [aws_security_group.target_sg.id]
     }
 
     ingress {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      #cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
+      security_groups = [aws_security_group.target_sg.id]
     }
 
     tags = {
