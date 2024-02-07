@@ -199,7 +199,7 @@ resource "aws_instance" "thehive_server" {
   }
 
   resource "aws_subnet" "target_subnet" {
-    vpc_id                  = aws_vpc.soc_vpc.id
+    vpc_id                  = aws_vpc.target_vpc.id
     cidr_block              = "10.4.0.0/24"
     availability_zone       = "us-east-1a"
     map_public_ip_on_launch = true
@@ -270,14 +270,12 @@ resource "aws_instance" "thehive_server" {
   resource "aws_vpc_peering_connection" "soc_target" {
     peer_vpc_id   = aws_vpc.target_vpc.id
     vpc_id        = aws_vpc.soc_vpc.id
-    peer_region   = "us-east-1"
     auto_accept   = true
   }
 
   resource "aws_vpc_peering_connection" "target_soc" {
     peer_vpc_id   = aws_vpc.soc_vpc.id
     vpc_id        = aws_vpc.target_vpc.id
-    peer_region   = "us-east-1"
     auto_accept   = true
   }
 
