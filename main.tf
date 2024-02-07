@@ -221,6 +221,10 @@ resource "aws_instance" "thehive_server" {
       cidr_block = "0.0.0.0/0"
       gateway_id = aws_internet_gateway.target_gw.id
     }
+    route {
+      cidr_block = aws_vpc.soc_vpc.cidr_block
+      vpc_peering_connection_id = aws_vpc_peering_connection.target_soc.id
+    }
   }
 
   resource "aws_route_table_association" "target_public_rta" {
@@ -369,8 +373,7 @@ resource "aws_instance" "thehive_server" {
       from_port   = 443
       to_port     = 443
       protocol    = "tcp"
-      #cidr_blocks = ["${aws_instance.target_server.private_ip}/32"]
-      security_groups = [aws_security_group.target_sg.id]
+      cidr_blocks = ["${var.my_ip}/32"]
     }
 
     tags = {
