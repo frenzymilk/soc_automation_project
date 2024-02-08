@@ -86,7 +86,7 @@ resource "aws_instance" "target_server" {
 					  apt-get update
 					  apt-get install -y  sysmonforlinux
 
-					  printf '%s' \' '<Sysmon schemaversion="4.70">' \
+					  printf '%s\n' '<Sysmon schemaversion="4.70">' \
 					    '<EventFiltering>' \
 					      '<!-- Event ID 1 == ProcessCreate. Log all newly created processes -->' \
 					      '<RuleGroup name="" groupRelation="or">' \
