@@ -78,10 +78,10 @@ resource "aws_instance" "wazuh_server" {
             wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive -P /var/ossec/integrations/custom-w2thive
             wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive.py -P /var/ossec/integrations/custom-w2thive.py
 
-            chmod 755 /var/ossec/integrations/custom-w2thive.py
-            chmod 755 /var/ossec/integrations/custom-w2thive
-            chown root:ossec /var/ossec/integrations/custom-w2thive.py
-            chown root:ossec /var/ossec/integrations/custom-w2thive
+            chmod 750 /var/ossec/integrations/custom-w2thive.py
+            chmod 750 /var/ossec/integrations/custom-w2thive
+            chown root:wazuh /var/ossec/integrations/custom-w2thive.py
+            chown root:wazuh /var/ossec/integrations/custom-w2thive
             
             systemctl restart wazuh-manager
 					  
@@ -213,11 +213,11 @@ resource "aws_instance" "thehive_server" {
 					  systemctl start thehive
 					  systemctl enable thehive
 
-            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://127.0.0.1:9000/api/v1/organisation 
+            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  '{"name": "myOrg", "description": "SOC automation"}'' http://127.0.0.1:9000/api/v1/organisation 
 
-            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${var.myorg_thehive_user_admin_password}, "profile": "org-admin", "organisation": "myOrg"} http://127.0.0.1:9000/api/v1/user
+            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  '{"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${var.myorg_thehive_user_admin_password}, "profile": "org-admin", "organisation": "myOrg"}'' http://127.0.0.1:9000/api/v1/user
 
-            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${var.myorg_thehive_user_analyst_password}, "profile": "analyst", "organisation": "myOrg"} http://127.0.0.1:9000/api/v1/user
+            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  '{"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${var.myorg_thehive_user_analyst_password}, "profile": "analyst", "organisation": "myOrg"}'' http://127.0.0.1:9000/api/v1/user
 
             curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/myOrgUser/key/renew
 
