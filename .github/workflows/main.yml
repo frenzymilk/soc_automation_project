@@ -22,6 +22,7 @@ env:
   TF_default_thehive_user: ${{ secrets.DEFAULT_THEHIVE_USER }}
   TF_default_thehive_password: ${{ secrets.DEFAULT_THEHIVE_PASSWORD }}
   TF_myorg_thehive_user_analyst_password: ${{ secrets.MYORG_THEHIVE_USER_ANALYST_PASSWORD }}
+  TF_myorg_thehive_user_admin_password: ${{ secrets.MYORG_THEHIVE_USER_ADMIN_PASSWORD }}
 
 permissions:
   contents: read # required for actions/checkout

@@ -47,6 +47,10 @@ variable "myorg_thehive_user_analyst_password" {
   sensitive = true
 }
 
+variable "myorg_thehive_user_admin_password" {
+  sensitive = true
+}
+
 provider "aws" {
     region = "us-east-1"
 }
@@ -211,7 +215,7 @@ resource "aws_instance" "thehive_server" {
 
             curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/organisation 
 
-            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${var.myorg_thehive_user_admin}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
+            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${var.myorg_thehive_user_admin_password}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
 
             curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${var.myorg_thehive_user_analyst_password}, "profile": "analyst", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
 
