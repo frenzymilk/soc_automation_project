@@ -35,6 +35,18 @@ variable "my_ip" {
 	sensitive = true
 }
 
+variable "default_thehive_user" {
+  sensitive = true
+}
+
+variable "default_thehive_password" {
+  sensitive = true
+}
+
+variable "myorg_thehive_user_analyst_password" {
+  sensitive = true
+}
+
 provider "aws" {
     region = "us-east-1"
 }
@@ -55,10 +67,21 @@ resource "aws_instance" "wazuh_server" {
 					  apt update
             apt install -y wget 
 					  curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && bash ./wazuh-install.sh -a
+            /var/ossec/framework/python/bin/pip3 install thehive4py==1.8.1
+
             wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/linux-sysmon.xml -P /var/ossec/etc/decoders/
             wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/sysmonforlinux-rules.xml -P /var/ossec/etc/rules/
+            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive -P /var/ossec/integrations/custom-w2thive
+            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive.py -P /var/ossec/integrations/custom-w2thive.py
+
+            chmod 755 /var/ossec/integrations/custom-w2thive.py
+            chmod 755 /var/ossec/integrations/custom-w2thive
+            chown root:ossec /var/ossec/integrations/custom-w2thive.py
+            chown root:ossec /var/ossec/integrations/custom-w2thive
+            
             systemctl restart wazuh-manager
-					  EOL
+					  
+            EOL
 }
 
 resource "aws_instance" "target_server" {
@@ -123,7 +146,8 @@ resource "aws_instance" "target_server" {
 					  '</Sysmon>' >> /opt/sysmon_config.xml
 
 					  sysmon -accepteula -i /opt/sysmon_config.xml
-					  EOL
+					  
+            EOL
 }
 
 resource "aws_instance" "thehive_server" {
@@ -185,13 +209,13 @@ resource "aws_instance" "thehive_server" {
 					  systemctl start thehive
 					  systemctl enable thehive
 
-            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/organisation 
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/organisation 
 
-            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${myorg_thehive_user_admin}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${myorg_thehive_user_admin}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
 
-            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${myorg_thehive_user_analyst}, "profile": "analyst", "organisation": "myOrg"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${myorg_thehive_user_analyst_password}, "profile": "analyst", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
 
-            curl -u ${default_thehive_user}:${default_thehive_password} -X POST  http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user/myOrgUser/key/renew
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST  http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user/myOrgUser/key/renew
 
 					  EOL
 

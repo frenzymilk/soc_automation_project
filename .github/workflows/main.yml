@@ -19,6 +19,9 @@ env:
   AWS_REGION: "us-east-1"
   TF_VAR_key_name: ${{ secrets.AWS_KEY_NAME }}
   TF_VAR_my_ip: ${{ secrets.MY_IP }}
+  TF_default_thehive_user: ${{ secrets.DEFAULT_THEHIVE_USER }}
+  TF_default_thehive_password: ${{ secrets.DEFAULT_THEHIVE_PASSWORD }}
+  TF_myorg_thehive_user_analyst_password: ${{ secrets.MYORG_THEHIVE_USER_ANALYST_PASSWORD }}
 
 permissions:
   contents: read # required for actions/checkout
