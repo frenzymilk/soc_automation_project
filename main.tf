@@ -209,7 +209,7 @@ resource "aws_instance" "thehive_server" {
 					  systemctl start thehive
 					  systemctl enable thehive
 
-            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/organisation 
+            curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/organisation 
 
             curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${var.myorg_thehive_user_admin}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.public_ip}:9000/api/v1/user
 
