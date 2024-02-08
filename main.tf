@@ -53,8 +53,11 @@ resource "aws_instance" "wazuh_server" {
     user_data = <<-EOL
 					  #!/bin/bash -xe
 					  apt update
+            apt install -y wget 
 					  curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && bash ./wazuh-install.sh -a
-
+            wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/linux-sysmon.xml -P /var/ossec/etc/decoders/
+            wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/sysmonforlinux-rules.xml -P /var/ossec/etc/rules/
+            systemctl restart wazuh-manager
 					  EOL
 }
 
@@ -181,6 +184,14 @@ resource "aws_instance" "thehive_server" {
 					  chown -R thehive:thehive /opt/thp/thehive/files
 					  systemctl start thehive
 					  systemctl enable thehive
+
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"name": "myOrg", "description": "SOC automation"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/organisation 
+
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseradmin@myorg.com", "name": "myOrgUserAdmin", "password":${myorg_thehive_user_admin}, "profile": "org-admin", "organisation": "myOrg"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user
+
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST -d  {"login": "myorguseranalyst@myorg.com", "name": "myOrgUserAnalyst", "password":${myorg_thehive_user_analyst}, "profile": "analyst", "organisation": "myOrg"} http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user
+
+            curl -u ${default_thehive_user}:${default_thehive_password} -X POST  http://${aws_instance.thehive_server.private_ip}:9000/api/v1/user/myOrgUser/key/renew
 
 					  EOL
 
