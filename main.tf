@@ -366,6 +366,13 @@ resource "aws_instance" "thehive_server" {
       cidr_blocks = ["${var.my_ip}/32"]
     }
 
+    ingress {
+      from_port   = 9000
+      to_port     = 9000
+      protocol    = "tcp"
+      cidr_blocks = ["127.0.0.1/32"]
+    }
+
     egress {
       from_port   = 0
       to_port     = 0
