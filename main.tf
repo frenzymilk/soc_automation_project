@@ -221,11 +221,9 @@ resource "aws_instance" "thehive_server" {
 
             echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user" >> ~/provision_theHive.sh
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/myOrgUser/key/renew" >> ~/provision_theHive.sh
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/myOrgUserAnalyst/key/renew" >> ~/provision_theHive.sh
 
             chmod 700 ~/provision_theHive.sh
-
-            ~/provision_theHive.sh
 
 					  EOL
 
