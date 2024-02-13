@@ -82,6 +82,9 @@ resource "aws_instance" "wazuh_server" {
             chmod 750 /var/ossec/integrations/custom-w2thive
             chown root:wazuh /var/ossec/integrations/custom-w2thive.py
             chown root:wazuh /var/ossec/integrations/custom-w2thive
+
+            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/integration_w2thehive_ossec.conf -P ~/
+            sed '/<ossec_config>/r ~/integration_w2thehive_ossec.conf' /var/ossec/etc/ossec.conf
             
             systemctl restart wazuh-manager
 					  
@@ -212,8 +215,6 @@ resource "aws_instance" "thehive_server" {
 					  chown -R thehive:thehive /opt/thp/thehive/files
 					  systemctl start thehive
 					  systemctl enable thehive
-
-            sleep 60
 
             echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"name\": \"myOrg\", \"description\": \"SOC automation\"}' http://127.0.0.1:9000/api/v1/organisation" >> ~/provision_theHive.sh 
 
