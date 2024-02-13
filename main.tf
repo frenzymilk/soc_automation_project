@@ -84,7 +84,7 @@ resource "aws_instance" "wazuh_server" {
             chown root:wazuh /var/ossec/integrations/custom-w2thive
 
             wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/integration_w2thehive_ossec.conf -P ~/
-            sed '/<ossec_config>/r ~/integration_w2thehive_ossec.conf' /var/ossec/etc/ossec.conf
+            sed -i '/<ossec_config>/r /root/integration_w2thehive_ossec.conf' /var/ossec/etc/ossec.conf
             
             systemctl restart wazuh-manager
 					  
@@ -169,7 +169,7 @@ resource "aws_instance" "thehive_server" {
     user_data = <<-EOL
 					  #!/bin/bash -xe
 					  apt update
-					  apt install -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-release
+					  apt install -y wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl  software-properties-common python3-pip lsb-release jq
 
 					  wget -qO- https://apt.corretto.aws/corretto.key | gpg --dearmor  -o /usr/share/keyrings/corretto.gpg
 					  echo "deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main" |  tee -a /etc/apt/sources.list.d/corretto.sources.list
@@ -220,9 +220,11 @@ resource "aws_instance" "thehive_server" {
 
             echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d '{\"login\": \"myorguseradmin@myorg.com\", \"name\": \"myOrgUserAdmin\", \"password\":\"${var.myorg_thehive_user_admin_password}\", \"profile\": \"org-admin\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user" >> ~/provision_theHive.sh
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user" >> ~/provision_theHive.sh
+            echo "contentUser=$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user)" >> ~/provision_theHive.sh
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/myOrgUserAnalyst/key/renew" >> ~/provision_theHive.sh
+            echo "analystId=$(jq -r '._id' <<<"$contentUser")"
+
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/$analystId/key/renew" >> ~/provision_theHive.sh
 
             chmod 700 ~/provision_theHive.sh
 
