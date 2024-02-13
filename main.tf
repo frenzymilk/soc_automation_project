@@ -220,9 +220,9 @@ resource "aws_instance" "thehive_server" {
 
             echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d '{\"login\": \"myorguseradmin@myorg.com\", \"name\": \"myOrgUserAdmin\", \"password\":\"${var.myorg_thehive_user_admin_password}\", \"profile\": \"org-admin\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user" >> ~/provision_theHive.sh
 
-            echo "contentUser=$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user)" >> ~/provision_theHive.sh
+            echo "contentUser=\$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user)" >> ~/provision_theHive.sh
 
-            echo "analystId=$(jq -r '._id' <<<"$contentUser")"
+            echo "analystId=\$(jq -r '._id' <<<"\$contentUser")"
 
             echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/$analystId/key/renew" >> ~/provision_theHive.sh
 
