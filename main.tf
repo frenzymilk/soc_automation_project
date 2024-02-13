@@ -75,8 +75,8 @@ resource "aws_instance" "wazuh_server" {
 
             wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/linux-sysmon.xml -P /var/ossec/etc/decoders/
             wget https://raw.githubusercontent.com/OpenSecureCo/Demos/main/sysmonforlinux-rules.xml -P /var/ossec/etc/rules/
-            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive -P /var/ossec/integrations/custom-w2thive
-            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive.py -P /var/ossec/integrations/custom-w2thive.py
+            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive -P /var/ossec/integrations/
+            wget https://raw.githubusercontent.com/frenzymilk/soc_automation_project/main/custom-w2thive.py -P /var/ossec/integrations/
 
             chmod 750 /var/ossec/integrations/custom-w2thive.py
             chmod 750 /var/ossec/integrations/custom-w2thive
