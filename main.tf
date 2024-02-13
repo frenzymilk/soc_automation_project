@@ -222,9 +222,9 @@ resource "aws_instance" "thehive_server" {
 
             echo "contentUser=\$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user)" >> ~/provision_theHive.sh
 
-            echo "analystId=\$(jq -r '._id' <<<"\$contentUser")"
+            echo "analystId=\$(jq -r '._id' <<<"\$contentUser")" >> ~/provision_theHive.sh
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/$analystId/key/renew" >> ~/provision_theHive.sh
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/\$analystId/key/renew" >> ~/provision_theHive.sh
 
             chmod 700 ~/provision_theHive.sh
 
@@ -375,7 +375,7 @@ resource "aws_instance" "thehive_server" {
       from_port   = 9000
       to_port     = 9000
       protocol    = "tcp"
-      cidr_blocks = ["127.0.0.1/32"]
+      cidr_blocks = ["${aws_instance.wazuh_server.private_ip}/32"]
     }
 
     egress {
