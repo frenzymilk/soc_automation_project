@@ -81,6 +81,6 @@ jobs:
         id: apply
 
       - name: AWS Plan Copy
-        if: steps.apply.outcome == "success"
+        if: steps.apply.outcome == 'success'
         run: aws s3 cp terraform.tfstate ${{env.S3_BUCKET}}/${{ env.ENVIRONMENT }}.tfstate
         id: copy
