@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions
+
 
 name: soc-deployment
 
@@ -17,6 +17,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: "us-east-1"
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
   TF_VAR_key_name: ${{ secrets.AWS_KEY_NAME }}
   TF_VAR_my_ip: ${{ secrets.MY_IP }}
   TF_VAR_default_thehive_user: ${{ secrets.DEFAULT_THEHIVE_USER }}
@@ -48,6 +49,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -61,11 +63,7 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init
-        # env:
-        #   AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-        #   AWS_BUCKET_KEY_NAME: ${{ secrets.AWS_BUCKET_KEY_NAME }}
-        # run: terraform init -backend-config="bucket=${AWS_BUCKET_NAME}" -backend-config="key=${AWS_BUCKET_KEY_NAME}" -backend-config="region=${AWS_REGION}"
-
+        
       - name: Terraform Validate
         id: validate
         run: terraform validate 
@@ -81,19 +79,62 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
+        id: apply
         # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+        -name: AWS Plan Copy
+          if: steps.apply.outcome == "success"
+          run: aws s3 cp terraform.tfstate ${{env.S3_BUCKET}}/${{ env.ENVIRONMENT }}.tfstate
+          id: copy
           
-  # deploy:
-  #   name: Destroy
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       shell: bash
 
-  #   steps:
+name: soc-destruction
 
-  #     - name: Terraform destroy
-  #       id: destroy
-  #       run: terraform destroy 
-        
+on: 
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment"
+        required: true 
+        default: "dev"
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: "us-east-1"
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
+
+jobs:
+  destroy:
+    name: "Destroy SOC infra"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: AWS Plan Copy
+        run: aws s3 cp ${{env.S3_BUCKET}}/${{ github.event.inputs.env }}.tfstate terraform.tfstate
+        id: copy
+      
+      - name: Show Destroy Plan
+        run: terraform plan -destroy
+        continue-on-error: true 
+
+      - name: Destroy resource jobs
+        id: destroy
+        run: terraform destroy -auto-approve 
+
+      - name: Delete plan file
+        if: steps.destroy.outcome == 'success'
+        run: aws s3 rm ${{env.S3_BUCKET}}/${{ github.event.inputs.env }}.tfstate 
+
+
