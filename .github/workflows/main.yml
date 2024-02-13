@@ -10,6 +10,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment"
+        required: true 
+        default: "dev"
 
 env: 
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -82,5 +87,5 @@ jobs:
 
       - name: AWS Plan Copy
         if: steps.apply.outcome == 'success'
-        run: aws s3 cp terraform.tfstate ${{env.S3_BUCKET}}/${{ env.ENVIRONMENT }}.tfstate
+        run: aws s3 cp terraform.tfstate ${{env.S3_BUCKET}}/${{ github.event.inputs.env }}.tfstate
         id: copy
