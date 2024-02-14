@@ -35,6 +35,11 @@ variable "my_ip" {
 	sensitive = true
 }
 
+variable "theHive_private_ip" {
+  type = string
+  default = "10.5.0.217"
+}
+
 variable "default_thehive_user" {
   sensitive = true
 }
@@ -161,7 +166,7 @@ resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     key_name        = var.key_name
-    private_ip      = 10.5.0.217
+    private_ip      = var.theHive_private_ip
     vpc_security_group_ids  = [aws_security_group.thehive_sg.id]
     subnet_id = aws_subnet.soc_subnet.id
     tags = {
@@ -217,15 +222,15 @@ resource "aws_instance" "thehive_server" {
 					  systemctl start thehive
 					  systemctl enable thehive
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"name\": \"myOrg\", \"description\": \"SOC automation\"}' http://127.0.0.1:9000/api/v1/organisation" >> ~/provision_theHive.sh 
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"name\": \"myOrg\", \"description\": \"SOC automation\"}' http://${var.theHive_private_ip}:9000/api/v1/organisation" >> ~/provision_theHive.sh 
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d '{\"login\": \"myorguseradmin@myorg.com\", \"name\": \"myOrgUserAdmin\", \"password\":\"${var.myorg_thehive_user_admin_password}\", \"profile\": \"org-admin\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user" >> ~/provision_theHive.sh
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d '{\"login\": \"myorguseradmin@myorg.com\", \"name\": \"myOrgUserAdmin\", \"password\":\"${var.myorg_thehive_user_admin_password}\", \"profile\": \"org-admin\", \"organisation\": \"myOrg\"}' http://${var.theHive_private_ip}:9000/api/v1/user" >> ~/provision_theHive.sh
 
-            echo "contentUser=\$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://127.0.0.1:9000/api/v1/user)" >> ~/provision_theHive.sh
+            echo "contentUser=\$(curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST -H 'Content-Type: application/json' -d  '{\"login\": \"myorguseranalyst@myorg.com\", \"name\": \"myOrgUserAnalyst\", \"password\":\"${var.myorg_thehive_user_analyst_password}\", \"profile\": \"analyst\", \"organisation\": \"myOrg\"}' http://${var.theHive_private_ip}:9000/api/v1/user)" >> ~/provision_theHive.sh
 
             echo "analystId=\$(jq -r '._id' <<<"\$contentUser")" >> ~/provision_theHive.sh
 
-            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://127.0.0.1:9000/api/v1/user/\$analystId/key/renew" >> ~/provision_theHive.sh
+            echo "curl -u ${var.default_thehive_user}:${var.default_thehive_password} -X POST  http://${var.theHive_private_ip}:9000/api/v1/user/\$analystId/key/renew" >> ~/provision_theHive.sh
 
             chmod 700 ~/provision_theHive.sh
 
