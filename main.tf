@@ -161,6 +161,7 @@ resource "aws_instance" "thehive_server" {
     ami             = "ami-0c7217cdde317cfec"
     instance_type   = "t2.xlarge"
     key_name        = var.key_name
+    private_ip      = 10.5.0.217
     vpc_security_group_ids  = [aws_security_group.thehive_sg.id]
     subnet_id = aws_subnet.soc_subnet.id
     tags = {
