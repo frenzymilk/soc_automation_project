@@ -11,7 +11,8 @@ In this deployment, Wazuh and the Hive are integrated, meaning that you can dire
 
 ## Disclaimer
 
-This deployment will incur charges on your AWS account, even if you have the free Tier. It is because Wazuh and The Hive require more capacity thant the one provided by instances available in free Tier. The target instance is deployed using free Tier
+This deployment will incur charges on your AWS account. It is because Wazuh and The Hive require more capacity than the one provided by instances available in free Tier. 
+The target instance is deployed using free Tier.
 
 ## Secrets configuration
 
