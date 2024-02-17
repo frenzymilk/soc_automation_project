@@ -1,5 +1,6 @@
 # Soc Deployment
 This project will deploy a SOC platform using Terraform and Github Actions. The infrastructure is comprised of 3 instances, one for Wazuh, a SIEM and XDR tool, one for TheHive, a tool allowing to provide Incident Response Capabilities, and the last one for an endpoint that will be your target.
+In addition to the Wazuh agent, the target instance also uses Sysmon for Linux for endpoint monitoring.
 
 ## Deployment
 
@@ -7,6 +8,10 @@ You can deploy this infrastructure by going to Github Actions, choosing the SOC 
 You can verify the stqtus of the deployment for each instqnce by accessing the `/var/log/cloud-init.log` file. 
 You can access the Wazuh and The Hive dashboards using their IP addresses, do not forget to use the port **9000** for The Hive.
 In this deployment, Wazuh and the Hive are integrated, meaning that you can directly create cases in The Hive for alerts received in Wazuh.
+
+## Disclaimer
+
+This deployment will incur charges on your AWS account, even if you have the free Tier. It is because Wazuh and The Hive require more capacity thant the one provided by instances available in free Tier. The target instance is deployed using free Tier
 
 ## Secrets configuration
 
