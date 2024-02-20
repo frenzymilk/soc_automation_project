@@ -109,6 +109,9 @@ jobs:
         shell: bash
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -125,13 +128,13 @@ jobs:
         run: aws s3 cp ${{env.S3_BUCKET}}/${{ github.event.inputs.env }}.tfstate terraform.tfstate
         id: copy
 
-      - name: Terraform Init
-        id: init
-        run: terraform init
+#      - name: Terraform Init
+#        id: init
+#        run: terraform init
       
-      - name: Show Destroy Plan
-        run: terraform plan -destroy
-        continue-on-error: false 
+#      - name: Show Destroy Plan
+#        run: terraform plan -destroy
+#        continue-on-error: false 
 
       - name: Destroy resource jobs
         id: destroy
