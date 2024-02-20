@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash
+        working-directory: ${{ github.event.inputs.resource }}
 
     steps:
       - name: Checkout
@@ -138,6 +138,7 @@ jobs:
 
       - name: Destroy resource jobs
         id: destroy
+        working-directory: ${{ github.event.inputs.resource }}
         run: terraform destroy -auto-approve 
 
       - name: Delete plan file
